@@ -24,7 +24,9 @@ function OutlinePlugin(game, opts) {
   this.showOutline = opts.showOutline !== undefined ? opts.showOutline : true;
   this.showThrough = opts.showThrough !== undefined ? opts.showThrough : false;
   this.colorVector = opts.color !== undefined ? opts.color : [1,0,0,1]; // red, RGBA TODO: convert from hex? TODO: same in voxel-chunkborder
-  this.modelMatrix = mat4.create(); // TODO
+
+  this.haveTarget = false;
+  this.modelMatrix = mat4.create();
 
   this.enable();
 }
@@ -39,18 +41,20 @@ OutlinePlugin.prototype.disable = function() {
   this.game.removeListener('tick', this.onTick);
   this.shell.removeListener('gl-render', this.onRender = this.render.bind(this));
   this.shell.removeListener('gl-init', this.onInit);
+  this.haveTarget = false;
 };
 
 var scratch0 = vec3.create();
-var epsilon = 0.001;
-var scratch1 = [1+epsilon, 1+epsilon, 1+epsilon];
 OutlinePlugin.prototype.tick = function() {
   var hit = this.game.raycastVoxels();
 
   if (!hit) {
-    // TODO: remove outline if any
+    // remove outline if any
+    this.haveTarget = false;
     return;
   }
+
+  this.haveTarget = true;
 
   // translate to voxel position
   // TODO: only change if voxel target changed?
@@ -59,11 +63,10 @@ OutlinePlugin.prototype.tick = function() {
   scratch0[1] = hit.voxel[1];
   scratch0[2] = hit.voxel[0];
   mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
-  mat4.scale(this.modelMatrix, this.modelMatrix, scratch1);
 };
 
 OutlinePlugin.prototype.render = function() {
-  if (this.showOutline) {
+  if (this.showOutline && this.haveTarget) {
     var gl = this.shell.gl;
 
     if (this.showThrough) gl.disable(gl.DEPTH_TEST);
@@ -106,7 +109,8 @@ void main() {\
 
   // TODO: refactor with voxel-chunkborder, very similar
 
-  var w = 1;
+  var epsilon = 0.001;
+  var w = 1 + epsilon;
   var outlineVertexArray = new Uint8Array([
     0,0,0,
     0,0,w,
