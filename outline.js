@@ -6,6 +6,8 @@ var glslify = require('glslify');
 var glm = require('gl-matrix');
 var mat4 = glm.mat4;
 var vec3 = glm.vec3;
+var inherits = require('inherits');
+var EventEmitter = require('events').EventEmitter;
 
 module.exports = function(game, opts) {
   return new OutlinePlugin(game, opts);
@@ -25,11 +27,12 @@ function OutlinePlugin(game, opts) {
   this.showThrough = opts.showThrough !== undefined ? opts.showThrough : false;
   this.colorVector = opts.color !== undefined ? opts.color : [1,0,0,1]; // red, RGBA TODO: convert from hex? TODO: same in voxel-chunkborder
 
-  this.haveTarget = false;
+  this.currentTarget = undefined;
   this.modelMatrix = mat4.create();
 
   this.enable();
 }
+inherits(OutlinePlugin, EventEmitter);
 
 OutlinePlugin.prototype.enable = function() {
   this.shell.on('gl-init', this.onInit = this.shaderInit.bind(this));
@@ -41,7 +44,7 @@ OutlinePlugin.prototype.disable = function() {
   this.game.removeListener('tick', this.onTick);
   this.shell.removeListener('gl-render', this.onRender = this.render.bind(this));
   this.shell.removeListener('gl-init', this.onInit);
-  this.haveTarget = false;
+  this.currentTarget = undefined;
 };
 
 var scratch0 = vec3.create();
@@ -50,23 +53,38 @@ OutlinePlugin.prototype.tick = function() {
 
   if (!hit) {
     // remove outline if any
-    this.haveTarget = false;
+    if (this.currentTarget) {
+      this.emit('remove', this.currentTarget.slice());
+    }
+
+    this.currentTarget = undefined;
     return;
   }
 
-  this.haveTarget = true;
+  // if changed voxel target, update matrix and emit event
+  if (!this.currentTarget ||
+      hit.voxel[0] !== this.currentTarget[0] ||
+      hit.voxel[1] !== this.currentTarget[1] ||
+      hit.voxel[2] !== this.currentTarget[2]) {
 
-  // translate to voxel position
-  // TODO: only change if voxel target changed?
-  mat4.identity(this.modelMatrix);
-  scratch0[0] = hit.voxel[2];
-  scratch0[1] = hit.voxel[1];
-  scratch0[2] = hit.voxel[0];
-  mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
+    // translate to voxel position
+    mat4.identity(this.modelMatrix);
+    scratch0[0] = hit.voxel[2];
+    scratch0[1] = hit.voxel[1];
+    scratch0[2] = hit.voxel[0];
+    mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
+
+    if (this.currentTarget) {
+      this.emit('remove', this.currentTarget.slice());
+    }
+
+    this.currentTarget = hit.voxel.slice();
+    this.emit('highlight', this.currentTarget.slice());
+  }
 };
 
 OutlinePlugin.prototype.render = function() {
-  if (this.showOutline && this.haveTarget) {
+  if (this.showOutline && this.currentTarget) {
     var gl = this.shell.gl;
 
     if (this.showThrough) gl.disable(gl.DEPTH_TEST);

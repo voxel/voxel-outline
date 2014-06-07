@@ -15,11 +15,12 @@
     "gl-vao": "^1.1.2",
     "gl-matrix": "^2.2.1",
     "gl-shader": "^3.0.0",
-    "glslify": "^1.4.0"
+    "glslify": "^1.4.0",
+    "inherits": "^2.0.1"
   },
   "browserify": {
     "transform": [
-        "glslify"
+      "glslify"
     ]
   },
   "license": "MIT"
