@@ -21,7 +21,8 @@ function OutlinePlugin(game, opts) {
   this.shaderPlugin = game.plugins.get('voxel-shader');
   if (!this.shaderPlugin) throw new Error('voxel-outline requires voxel-shader');
 
-  this.showOutline = true;
+  this.showOutline = opts.showOutline !== undefined ? opts.showOutline : true;
+  this.showThrough = opts.showThrough !== undefined ? opts.showThrough : false;
   this.colorVector = opts.color !== undefined ? opts.color : [1,0,0,1]; // red, RGBA TODO: convert from hex? TODO: same in voxel-chunkborder
   this.modelMatrix = mat4.create(); // TODO
 
@@ -61,6 +62,8 @@ OutlinePlugin.prototype.tick = function() {
 OutlinePlugin.prototype.render = function() {
   if (this.showOutline) {
     var gl = this.shell.gl;
+
+    if (this.showThrough) gl.disable(gl.DEPTH_TEST);
 
     this.outlineShader.bind();
     this.outlineShader.attributes.position.location = 0;
