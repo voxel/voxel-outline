@@ -5,12 +5,14 @@ var createVAO = require('gl-vao');
 var glslify = require('glslify');
 var glm = require('gl-matrix');
 var mat4 = glm.mat4;
+var vec3 = glm.vec3;
 
 module.exports = function(game, opts) {
   return new OutlinePlugin(game, opts);
 };
 
 function OutlinePlugin(game, opts) {
+  this.game = game;
   this.shell = game.shell;
 
   this.mesherPlugin = game.plugins.get('voxel-mesher');
@@ -29,11 +31,31 @@ function OutlinePlugin(game, opts) {
 OutlinePlugin.prototype.enable = function() {
   this.shell.on('gl-init', this.onInit = this.shaderInit.bind(this));
   this.shell.on('gl-render', this.onRender = this.render.bind(this));
+  this.game.on('tick', this.onTick = this.tick.bind(this)); // TODO: _.throttle? https://github.com/maxogden/voxel-highlight/blob/master/index.js#L56
 };
 
 OutlinePlugin.prototype.disable = function() {
+  this.game.removeListener('tick', this.onTick);
   this.shell.removeListener('gl-render', this.onRender = this.render.bind(this));
   this.shell.removeListener('gl-init', this.onInit);
+};
+
+var scratch0 = vec3.create();
+OutlinePlugin.prototype.tick = function() {
+  var hit = this.game.raycastVoxels();
+
+  if (!hit) {
+    // TODO: remove outline if any
+    return;
+  }
+
+  // translate to voxel position
+  // TODO: only change if voxel target changed?
+  mat4.identity(this.modelMatrix);
+  scratch0[0] = hit.voxel[2];
+  scratch0[1] = hit.voxel[1];
+  scratch0[2] = hit.voxel[0];
+  mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
 };
 
 OutlinePlugin.prototype.render = function() {
