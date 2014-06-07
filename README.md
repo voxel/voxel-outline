@@ -1,0 +1,6 @@
+# voxel-outline
+
+## License
+
+MIT
+
