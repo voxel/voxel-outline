@@ -42,6 +42,8 @@ OutlinePlugin.prototype.disable = function() {
 };
 
 var scratch0 = vec3.create();
+var epsilon = 0.001;
+var scratch1 = [1+epsilon, 1+epsilon, 1+epsilon];
 OutlinePlugin.prototype.tick = function() {
   var hit = this.game.raycastVoxels();
 
@@ -57,6 +59,7 @@ OutlinePlugin.prototype.tick = function() {
   scratch0[1] = hit.voxel[1];
   scratch0[2] = hit.voxel[0];
   mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
+  mat4.scale(this.modelMatrix, this.modelMatrix, scratch1);
 };
 
 OutlinePlugin.prototype.render = function() {
