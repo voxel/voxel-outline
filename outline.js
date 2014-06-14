@@ -47,7 +47,6 @@ OutlinePlugin.prototype.disable = function() {
   this.currentTarget = undefined;
 };
 
-var scratch0 = vec3.create();
 OutlinePlugin.prototype.tick = function() {
   var hit = this.game.raycastVoxels();
 
@@ -69,10 +68,7 @@ OutlinePlugin.prototype.tick = function() {
 
     // translate to voxel position
     mat4.identity(this.modelMatrix);
-    scratch0[0] = hit.voxel[2];
-    scratch0[1] = hit.voxel[1];
-    scratch0[2] = hit.voxel[0];
-    mat4.translate(this.modelMatrix, this.modelMatrix, scratch0);
+    mat4.translate(this.modelMatrix, this.modelMatrix, hit.voxel);
 
     if (this.currentTarget) {
       this.emit('remove', this.currentTarget.slice());
