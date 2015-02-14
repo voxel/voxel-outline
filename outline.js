@@ -75,7 +75,7 @@ OutlinePlugin.prototype.tick = function() {
     }
 
     this.currentTarget = hit.voxel.slice();
-    this.emit('highlight', this.currentTarget.slice());
+    this.emit('highlight', this.currentTarget.slice(), hit);
   }
 };
 

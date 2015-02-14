@@ -16,7 +16,7 @@ Emits events when the raycast voxel target changes (similar to voxel-highlight):
 
     var outlinePlugin = game.plugins.get('voxel-outline');
 
-    outlinePlugin.on('highlight', function(pos) { /* ... */});
+    outlinePlugin.on('highlight', function(pos, info) { /* ... */});
     outlinePlugin.on('remove', function(pos) { /* ... */});
 
 For an example of this API usage, see [voxel-voila](https://github.com/deathcap/voxel-voila).
