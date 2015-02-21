@@ -3,9 +3,7 @@
 var createBuffer = require('gl-buffer');
 var createVAO = require('gl-vao');
 var createSimpleShader = require('simple-3d-shader');
-var glm = require('gl-matrix');
-var mat4 = glm.mat4;
-var vec3 = glm.vec3;
+var mat4 = require('gl-mat4');
 var inherits = require('inherits');
 var EventEmitter = require('events').EventEmitter;
 
