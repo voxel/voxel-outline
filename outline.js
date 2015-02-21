@@ -2,7 +2,7 @@
 
 var createBuffer = require('gl-buffer');
 var createVAO = require('gl-vao');
-var glslify = require('glslify');
+var createSimpleShader = require('simple-3d-shader');
 var glm = require('gl-matrix');
 var mat4 = glm.mat4;
 var vec3 = glm.vec3;
@@ -25,7 +25,7 @@ function OutlinePlugin(game, opts) {
 
   this.showOutline = opts.showOutline !== undefined ? opts.showOutline : true;
   this.showThrough = opts.showThrough !== undefined ? opts.showThrough : false;
-  this.colorVector = opts.color !== undefined ? opts.color : [1,0,0,1]; // red, RGBA TODO: convert from hex? TODO: same in voxel-chunkborder
+  this.colorVector = opts.color !== undefined ? opts.color : [1,0,0]; // red, RGB TODO: convert from hex? TODO: same in voxel-chunkborder
 
   this.currentTarget = undefined;
   this.modelMatrix = mat4.create();
@@ -89,8 +89,8 @@ OutlinePlugin.prototype.render = function() {
     this.outlineShader.attributes.position.location = 0;
     this.outlineShader.uniforms.projection = this.shaderPlugin.projectionMatrix;
     this.outlineShader.uniforms.view = this.shaderPlugin.viewMatrix;
-    this.outlineShader.uniforms.color = this.colorVector;
     this.outlineShader.uniforms.model = this.modelMatrix;
+    this.outlineShader.attributes.color = this.colorVector;
     var outlineVAO = this.mesh;
     outlineVAO.bind();
     outlineVAO.draw(gl.LINES, outlineVAO.length);
@@ -98,26 +98,8 @@ OutlinePlugin.prototype.render = function() {
   }
 };
 
-// TODO: can we use the same simple shaders as elsewhere? (e.g. voxel-chunkborder)
-// no need to specialize here
 OutlinePlugin.prototype.shaderInit = function() {
-  this.outlineShader = glslify({
-    inline: true,
-    vertex: "/* voxel-outline vertex shader */\
-attribute vec3 position;\
-uniform mat4 projection;\
-uniform mat4 view;\
-uniform mat4 model;\
-void main() {\
-  gl_Position = projection * view * model * vec4(position, 1.0);\
-}",
-
-  fragment: "/* voxel-outline fragment shader */\
-precision highp float;\
-uniform vec4 color;\
-void main() {\
-  gl_FragColor = color;\
-}"})(this.shell.gl);
+  this.outlineShader = createSimpleShader(this.shell.gl);
 
   // create outline mesh
 
