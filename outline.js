@@ -6,6 +6,7 @@ var createSimpleShader = require('simple-3d-shader');
 var mat4 = require('gl-mat4');
 var inherits = require('inherits');
 var EventEmitter = require('events').EventEmitter;
+var throttle = require('lodash.throttle');
 
 module.exports = function(game, opts) {
   return new OutlinePlugin(game, opts);
@@ -24,6 +25,7 @@ function OutlinePlugin(game, opts) {
   this.showOutline = opts.showOutline !== undefined ? opts.showOutline : true;
   this.showThrough = opts.showThrough !== undefined ? opts.showThrough : false;
   this.colorVector = opts.color !== undefined ? opts.color : [1,0,0]; // red, RGB TODO: convert from hex? TODO: same in voxel-chunkborder
+  this.frequency = opts.frequency ? opts.frequency : 100; // milliseconds to throttle raycasting
 
   this.currentTarget = undefined;
   this.modelMatrix = mat4.create();
@@ -35,7 +37,7 @@ inherits(OutlinePlugin, EventEmitter);
 OutlinePlugin.prototype.enable = function() {
   this.shell.on('gl-init', this.onInit = this.shaderInit.bind(this));
   this.shell.on('gl-render', this.onRender = this.render.bind(this));
-  this.game.on('tick', this.onTick = this.tick.bind(this)); // TODO: _.throttle? https://github.com/maxogden/voxel-highlight/blob/master/index.js#L56
+  this.game.on('tick', this.onTick = throttle(this.tick.bind(this), this.frequency));
 };
 
 OutlinePlugin.prototype.disable = function() {

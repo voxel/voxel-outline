@@ -16,6 +16,7 @@
     "gl-shader": "^3.0.0",
     "gl-vao": "^1.1.2",
     "inherits": "^2.0.1",
+    "lodash.throttle": "^3.0.1",
     "simple-3d-shader": "0.0.0"
   },
   "license": "MIT"
