@@ -45,6 +45,10 @@ OutlinePlugin.prototype.disable = function() {
   this.currentTarget = undefined;
 };
 
+// slightly enlarge the outline to avoid z-fighting voxel
+var epsilon = 0.001; // greater than voxel-wireframe (0.00001) so it doesn't fight there either
+var epsilonVector = [1+epsilon, 1+epsilon, 1+epsilon];
+
 OutlinePlugin.prototype.tick = function() {
   var hit = this.game.raycastVoxels();
 
@@ -66,6 +70,7 @@ OutlinePlugin.prototype.tick = function() {
 
     // translate to voxel position
     mat4.identity(this.modelMatrix);
+    mat4.scale(this.modelMatrix, this.modelMatrix, epsilonVector);
     mat4.translate(this.modelMatrix, this.modelMatrix, hit.voxel);
 
     if (this.currentTarget) {
@@ -103,8 +108,7 @@ OutlinePlugin.prototype.shaderInit = function() {
 
   // TODO: refactor with voxel-chunkborder, very similar
 
-  var epsilon = 0.001;
-  var w = 1 + epsilon;
+  var w = 1;
   var outlineVertexArray = new Uint8Array([
     0,0,0,
     0,0,w,
