@@ -72,8 +72,8 @@ OutlinePlugin.prototype.tick = function() {
 
     // translate to voxel position
     mat4.identity(this.modelMatrix);
-    mat4.scale(this.modelMatrix, this.modelMatrix, epsilonVector);
     mat4.translate(this.modelMatrix, this.modelMatrix, hit.voxel);
+    mat4.scale(this.modelMatrix, this.modelMatrix, epsilonVector);
 
     if (this.currentTarget) {
       this.emit('remove', this.currentTarget.slice());
