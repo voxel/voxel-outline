@@ -11,6 +11,9 @@ var throttle = require('lodash.throttle');
 module.exports = function(game, opts) {
   return new OutlinePlugin(game, opts);
 };
+module.exports.pluginInfo = {
+  loadAfter: ['voxel-mesher', 'voxel-shader']
+};
 
 function OutlinePlugin(game, opts) {
   this.game = game;
