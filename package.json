@@ -1,7 +1,7 @@
 {
   "name": "voxel-outline",
   "description": "outline targeted voxels (voxel.js plugin)",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "main": "outline.js",
   "repository": {
     "type": "git",
