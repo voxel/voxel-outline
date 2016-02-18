@@ -15,7 +15,7 @@
     "gl-mat4": "^1.1.2",
     "gl-vao": "^1.1.2",
     "inherits": "^2.0.1",
-    "lodash.throttle": "^3.0.1",
+    "lodash.throttle": "^4.0.1",
     "simple-3d-shader": "0.0.0"
   },
   "license": "MIT"
